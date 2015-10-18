@@ -24,18 +24,14 @@ bool intersectSphere(Ray& ray, const Sphere& sphere){
 	  if (disc > 0.0f){
 	    float sdisc = sqrtf(disc);
 	    float root1 = (-b - sdisc);
-	    //if ((root1) >= ray.tnear && ray.tfar >= root1) {
 	    if(root1 >= ray.t_min && root1 <= ray.t_max){
 	      ray.t_max = root1;
-	      // Normal = normalize((O + root1*D) / sphere.r);
 	      return true;
 	    }
 
 	    float root2 = (-b + sdisc) + root1;
-	    //if (root2 >= ray.tnear && ray.tfar >= root2) {
 	    if(root2 >= ray.t_min && root2 <= ray.t_max){
 	      ray.t_max = root2;
-	      //ray.Ng = normalize((O + root2*D) / sphere.r);
 	      return true;
 	    }
 	}
