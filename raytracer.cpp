@@ -170,7 +170,7 @@ void CRayTracer::saveBitmapToFile(const std::string& _filename) const {
 		return;
 	}
 
-	ppmFile << "P6" << std::endl;
+	ppmFile << "P3" << std::endl;
 	ppmFile << "# " << _filename << std::endl;
 	ppmFile << IMG_WIDTH << " " << IMG_HEIGHT << std::endl;
 	ppmFile << "255" << std::endl;
