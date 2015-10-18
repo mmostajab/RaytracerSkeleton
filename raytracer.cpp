@@ -42,8 +42,27 @@ void CRayTracer::drawPixel(const int& _row, const int& _col, const RGBColor& _pi
 	m_ColorBuffer[3 * (_row * IMG_WIDTH + _col) + 2] = _pixelColor.b;
 }
 
-void CRayTracer::saveBitmapToFile(const std::string& _pFileName) const {
+void CRayTracer::saveBitmapToFile(const std::string& _filename) const {
 	// Save to ppm file
+	std::ofstream ppmFile(_filename);
+	if(!ppmFile){
+		std::cerr << "Cannot open " << _filename << std::endl;
+		return;
+	}
+
+	ppmFile << "P6" << std::endl;
+	ppmFile << "# " << _filename << std::endl;
+	ppmFile << IMG_WIDTH << " " << IMG_HEIGHT << std::endl;
+	ppmFile << "255" << std::endl;
+
+	for(int r = 0; r < IMG_HEIGHT; r++){
+		for(int c = 0; c < IMG_WIDTH; c++){
+			ppmFile 	<< static_cast<int>( m_ColorBuffer[3 * (r * IMG_WIDTH + c) + 0] * 255 ) << " "
+						<< static_cast<int>( m_ColorBuffer[3 * (r * IMG_WIDTH + c) + 1] * 255 ) << " "
+						<< static_cast<int>( m_ColorBuffer[3 * (r * IMG_WIDTH + c) + 2] * 255 ) << "\t";
+		}
+		ppmFile << std::endl;
+	}
 }
 
 const float* CRayTracer::getColorBuffer() const {

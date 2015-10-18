@@ -25,11 +25,11 @@ namespace RayTracer
 		~CRayTracer(void);
 
 		void renderScene(void);
-		void saveBitmapToFile(const std::string& filename) const;
+		void saveBitmapToFile(const std::string& _filename) const;
 
 		const float* getColorBuffer() const;		
 
 	private:
-		void drawPixel(const int& _pRow, const int& _pCol, const RGBColor& _pPixelColor);
+		void drawPixel(const int& _row, const int& _col, const RGBColor& _pixelColor);
 	};
 }
