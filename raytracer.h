@@ -20,6 +20,9 @@ namespace RayTracer
 		static std::random_device rd;
 		static std::mt19937 RandomGenerator;
 
+		// Objects in the scene
+		Sphere sphere;
+
 	public:
 		CRayTracer(void);
 		~CRayTracer(void);

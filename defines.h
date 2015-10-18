@@ -15,6 +15,26 @@ namespace RayTracer
 
 		static RGBColor BLACK;
 	};
+
+	struct Ray {
+		float origin[3];
+		float dir[3];
+
+		// Only intersection in distance between t_min and t_max are valid
+		float t_min;
+		float t_max;
+
+		// Normal vector in intersection point
+		float normal[3];
+	};
+
+	struct Sphere {
+		float center[3];
+		float radius;
+	};
+
+	float dot(const float vec0[3], const float vec1[3]);
+
 }
 
 #endif
