@@ -9,7 +9,7 @@
 namespace RayTracer
 {
 	struct RGBColor {
-		RGBColor(const float& _r, const float& _g, const float& _b, const float& _a): r(_r), g(_g), b(_b), a(_a) {}
+		RGBColor(const float& _r = 0.f, const float& _g = 0.f, const float& _b = 0.f, const float& _a = 1.f): r(_r), g(_g), b(_b), a(_a) {}
 
 		float r, g, b, a;	
 
@@ -31,9 +31,12 @@ namespace RayTracer
 	struct Sphere {
 		float center[3];
 		float radius;
+
+		RGBColor color;
 	};
 
 	float dot(const float vec0[3], const float vec1[3]);
+	float clamp(const float& val, const float& min_val, const float& max_val);
 
 }
 

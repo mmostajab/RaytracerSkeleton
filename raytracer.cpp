@@ -24,18 +24,36 @@ bool intersectSphere(Ray& ray, const Sphere& sphere){
 	  if (disc > 0.0f){
 	    float sdisc = sqrtf(disc);
 	    float root1 = (-b - sdisc);
-	    //if ((root1) >= ray.tnear && ray.tfar >= root1) {
 	    if(root1 >= ray.t_min && root1 <= ray.t_max){
 	      ray.t_max = root1;
-	      // Normal = normalize((O + root1*D) / sphere.r);
+
+	      ray.normal[0] = (ray.origin[0] + root1 * ray.dir[0]) / sphere.radius;
+	      ray.normal[1] = (ray.origin[1] + root1 * ray.dir[1]) / sphere.radius;
+	      ray.normal[2] = (ray.origin[2] + root1 * ray.dir[2]) / sphere.radius;
+
+	      float normal_length = sqrtf(ray.normal[0] * ray.normal[0] + ray.normal[1] * ray.normal[1] + ray.normal[2] * ray.normal[2]);
+			
+		  ray.normal[0] /= normal_length;
+	      ray.normal[1] /= normal_length;
+	      ray.normal[2] /= normal_length;
+
 	      return true;
 	    }
 
 	    float root2 = (-b + sdisc) + root1;
-	    //if (root2 >= ray.tnear && ray.tfar >= root2) {
 	    if(root2 >= ray.t_min && root2 <= ray.t_max){
 	      ray.t_max = root2;
-	      //ray.Ng = normalize((O + root2*D) / sphere.r);
+
+	      ray.normal[0] = (ray.origin[0] + root2 * ray.dir[0]) / sphere.radius;
+	      ray.normal[1] = (ray.origin[1] + root2 * ray.dir[1]) / sphere.radius;
+	      ray.normal[2] = (ray.origin[2] + root2 * ray.dir[2]) / sphere.radius;
+
+	      float normal_length = sqrtf(ray.normal[0] * ray.normal[0] + ray.normal[1] * ray.normal[1] + ray.normal[2] * ray.normal[2]);
+			
+		  ray.normal[0] /= normal_length;
+	      ray.normal[1] /= normal_length;
+	      ray.normal[2] /= normal_length;
+	      
 	      return true;
 	    }
 	}
@@ -47,6 +65,19 @@ bool intersectSphere(Ray& ray, const Sphere& sphere){
 
 CRayTracer::CRayTracer(void) : m_ColorBuffer(3 * IMG_WIDTH * IMG_HEIGHT), m_BackgroundColor(RGBColor::BLACK) {
 	sphere.radius = 150.f;
+
+	sphere.color.r = 0.6;
+	sphere.color.g = 0.8;
+	sphere.color.b = 0.5;
+	sphere.color.a = 1.0;
+
+	light_dir[0] = 0.58f;
+	light_dir[1] = 0.58f;
+	light_dir[2] = -0.58f;
+
+	viewer_pos[0] = 0.f;
+	viewer_pos[1] = 0.f;
+	viewer_pos[2] = -200.f;
 }
 
 
@@ -62,9 +93,10 @@ void CRayTracer::renderScene(void) {
 			std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
 			// Setting the ray origin
-			ray.origin[0] = r - IMG_WIDTH  / 2.0f;
-			ray.origin[1] = c - IMG_HEIGHT / 2.0f;
-			ray.origin[2] = -100.0f;
+			// viewer is in (0, 0, -200)
+			ray.origin[0] = viewer_pos[0] + r - IMG_WIDTH  / 2.0f;
+			ray.origin[1] = viewer_pos[1] + c - IMG_HEIGHT / 2.0f;
+			ray.origin[2] = viewer_pos[2];
 
 			// Specify the distance where the intersection can happen
 			ray.t_min = 0.0f;
@@ -77,7 +109,42 @@ void CRayTracer::renderScene(void) {
 
 			// trace rays to compute the pixel color
 			if(intersectSphere(ray, sphere)){
-				pixelColor = RGBColor(1, 0, 0, 1);
+				//pixelColor = RGBColor(1.f, 0.f, 0.f, 1.f);
+				//pixelColor = RGBColor(ray.t_max, ray.t_max, ray.t_max, 1);
+				//pixelColor = RGBColor((ray.normal[0] + 1.f) / 2.f, (ray.normal[1] + 1.f) / 2.f, (ray.normal[2] + 1.f) / 2.f, 1);
+
+
+				float diffuse_albedo = dot(light_dir, ray.normal);
+
+				//pixelColor = RGBColor(diffuse_albedo, diffuse_albedo, diffuse_albedo, 1);
+
+				float proj_light_dir_on_normal_len = dot(light_dir, ray.normal);
+
+				float intersect_position[3] = { ray.origin[0] + ray.dir[0] * ray.t_max, ray.origin[1] + ray.dir[1] * ray.t_max, ray.origin[2] + ray.dir[2] * ray.t_max };
+				float reflection_vec[3]     = { 
+					2 * proj_light_dir_on_normal_len * ray.normal[0] - light_dir[0], 
+					2 * proj_light_dir_on_normal_len * ray.normal[1] - light_dir[1], 
+					2 * proj_light_dir_on_normal_len * ray.normal[2] - light_dir[2] 
+				};
+				float reflection_vec_len = sqrt(reflection_vec[0] * reflection_vec[0] + reflection_vec[1] * reflection_vec[1] + reflection_vec[2] * reflection_vec[2]);
+				reflection_vec[0] /= reflection_vec_len;
+				reflection_vec[1] /= reflection_vec_len;
+				reflection_vec[2] /= reflection_vec_len;
+
+				float viewer_vec[3]         = { ray.origin[0] - intersect_position[0], ray.origin[1] - intersect_position[1], ray.origin[2] - intersect_position[2] };
+				float viewer_vec_len = sqrt(viewer_vec[0] * viewer_vec[0] + viewer_vec[1] * viewer_vec[1] + viewer_vec[2] * viewer_vec[2]);
+				viewer_vec[0] /= viewer_vec_len;
+				viewer_vec[1] /= viewer_vec_len;
+				viewer_vec[2] /= viewer_vec_len;
+
+				float specular_albedo       = pow(clamp(dot(reflection_vec, viewer_vec), 0.0f, 1.0f), 20.0f);
+
+				pixelColor = RGBColor(specular_albedo, specular_albedo, specular_albedo, 1);
+
+				float phong_factor = clamp(diffuse_albedo + specular_albedo, 0.2f, 1.0f);
+
+				pixelColor = RGBColor(sphere.color.r * phong_factor, sphere.color.g * phong_factor, sphere.color.b * phong_factor, 1.f);
+
 			}
 			else
 				pixelColor = RGBColor(dis(RandomGenerator), dis(RandomGenerator), dis(RandomGenerator), 1.0f);

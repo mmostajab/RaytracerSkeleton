@@ -21,6 +21,8 @@ namespace RayTracer
 		static std::mt19937 RandomGenerator;
 
 		// Objects in the scene
+		float viewer_pos[3];
+		float light_dir[3];
 		Sphere sphere;
 
 	public:
