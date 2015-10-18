@@ -12,7 +12,7 @@ namespace RayTracer
 	class CRayTracer
 	{
 	private:
-		RGBColor m_BackgroundColor;							//!< Background color
+		RGBColor m_BackgroundColor;						//!< Background color
 		std::vector<float> m_ColorBuffer;					//!< Color buffer
 		
 		// Random Generator
