@@ -110,11 +110,11 @@ void CRayTracer::renderScene(void) {
 			// trace rays to compute the pixel color
 			if(intersectSphere(ray, sphere)){
 				//pixelColor = RGBColor(1.f, 0.f, 0.f, 1.f);
-				//pixelColor = RGBColor(ray.t_max, ray.t_max, ray.t_max, 1);
+				//pixelColor = RGBColor(ray.t_max / 300.0f, ray.t_max / 300.0f, ray.t_max / 300.0f, 1);
 				//pixelColor = RGBColor((ray.normal[0] + 1.f) / 2.f, (ray.normal[1] + 1.f) / 2.f, (ray.normal[2] + 1.f) / 2.f, 1);
 
 
-				float diffuse_albedo = dot(light_dir, ray.normal);
+				float diffuse_albedo = clamp(dot(light_dir, ray.normal), 0.0f, 1.0f);
 
 				//pixelColor = RGBColor(diffuse_albedo, diffuse_albedo, diffuse_albedo, 1);
 
@@ -139,7 +139,7 @@ void CRayTracer::renderScene(void) {
 
 				float specular_albedo       = pow(clamp(dot(reflection_vec, viewer_vec), 0.0f, 1.0f), 20.0f);
 
-				pixelColor = RGBColor(specular_albedo, specular_albedo, specular_albedo, 1);
+				//pixelColor = RGBColor(specular_albedo, specular_albedo, specular_albedo, 1);
 
 				float phong_factor = clamp(diffuse_albedo + specular_albedo, 0.2f, 1.0f);
 
